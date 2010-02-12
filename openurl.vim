@@ -2,7 +2,7 @@
 
 " Vim plugin file - openurl
 "
-" Last Change:   10 February 2010
+" Last Change:   12 February 2010
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
