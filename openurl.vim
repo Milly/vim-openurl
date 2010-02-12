@@ -72,30 +72,29 @@ endf
 command! -nargs=1 -complete=file Open call <SID>OpenUrl('<args>')
 
 
-" Mouse mapping  "{{{1
+" Cursor mapping  "{{{1
+function! s:OpenUrlOnCursor()
+  let l:cursor = col('.') - 1
+  let l:line = getline('.')
+  let l:pos = 0
+  while 1
+    let l:pos = match(l:line, s:URL_REGEX, l:pos)
+    let l:url = matchstr(l:line, s:URL_REGEX, l:pos)
+    if l:pos < 0 || l:cursor < l:pos
+      break
+    endif
+    let l:pos = l:pos + strlen(l:url)
+    if l:cursor < l:pos
+      call s:OpenUrl(l:url)
+      break
+    endif
+  endw
+endf
+
+noremap <silent> <Plug>(openurl) <ESC>:call <SID>OpenUrlOnCursor()<CR>
+silent! nmap <C-Return> <Plug>(openurl)
 if has('mouse')
-
-  function! s:OpenUrlOnCursor()
-    let l:cursor = col('.') - 1
-    let l:line = getline('.')
-    let l:pos = 0
-    while 1
-      let l:pos = match(l:line, s:URL_REGEX, l:pos)
-      let l:url = matchstr(l:line, s:URL_REGEX, l:pos)
-      if l:pos < 0 || l:cursor < l:pos
-        break
-      endif
-      let l:pos = l:pos + strlen(l:url)
-      if l:cursor < l:pos
-        call s:OpenUrl(l:url)
-        break
-      endif
-    endw
-  endf
-
-  noremap <silent> <Plug>(openurl) <ESC>:call <SID>OpenUrlOnCursor()<CR>
   silent! map <2-LeftMouse> <Plug>(openurl)
-
 endif
 
 
