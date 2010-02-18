@@ -2,10 +2,11 @@
 
 " Vim plugin file - openurl
 "
-" Last Change:   12 February 2010
+" Last Change:   19 February 2010
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
+"   g:openurl_regex        - URL match regex (default empty)
 "   g:openurl_encoding     - Character encoding for URL (default: utf-8)
 "   g:no_openurl_highlight - Not define highlight (default: 0)
 "=============================================================================
@@ -14,7 +15,14 @@ if exists('g:loaded_openurl')
   finish
 endif
 
-let s:URL_REGEX = '\<[a-z+-]\+\>://[-!#%&+,./0-9:;=?@A-Za-z_~]\+'
+if has('multi_byte')
+  let s:URL_REGEX = '\<[a-z+-]\+\>://\([-!#%&+,./:;=?$@_~[:alnum:]]\|[^[:print:][:cntrl:]]\)\+'
+else
+  let s:URL_REGEX = '\<[a-z+-]\+\>://[-!#%&+,./:;=?$@_~[:alnum:]]\+'
+endif
+if !exists('g:openurl_regex')
+  let g:openurl_regex = ''
+endif
 
 if !exists('g:openurl_encoding')
   let g:openurl_encoding = 'utf-8'
@@ -28,12 +36,22 @@ if !exists('g:no_openurl_highlight')
 endif
 
 
+" Get url regex  "{{{1
+function! s:GetUrlRegex()
+  if exists('g:openurl_regex') && g:openurl_regex != ''
+    return g:openurl_regex
+  endif
+  return s:URL_REGEX
+endf
+
+
 " Syntax  "{{{1
 if has('syntax') && !g:no_openurl_highlight
 
   function! s:HighlightUrl()
     if &buftype == ''
-      exec "syntax match ClickableUrl '" . s:URL_REGEX . "' display containedin=ALL"
+      silent! syntax clear ClickableUrl
+      exec "syntax match ClickableUrl '" . s:GetUrlRegex() . "' display containedin=ALL"
       hi def link ClickableUrl Underlined
     endif
   endf
@@ -55,7 +73,9 @@ function! s:OpenUrl(url)
     let l:url = iconv(l:url, &encoding, g:openurl_encoding)
   endif
   if has('win32') && executable('wscript')
-    let l:url = substitute(l:url, '^smb://', '\\\\', '')
+    let l:url = substitute(l:url, '\\', '/', 'g')
+    let l:url = substitute(l:url, '^smb://\(//\)\?', '\\\\', '')
+    echo 'openurl: ' . l:url
     silent! exec '!start wscript //E:JScript "' . s:wsh_script . '" "' . l:url . '"'
   elseif has('win32unix') && executable('cygstart')
     let l:url = substitute(l:url, '^file://\(localhost/\@=\)\?', '', '')
@@ -77,9 +97,10 @@ function! s:OpenUrlOnCursor()
   let l:cursor = col('.') - 1
   let l:line = getline('.')
   let l:pos = 0
+  let l:url_regex = s:GetUrlRegex()
   while 1
-    let l:pos = match(l:line, s:URL_REGEX, l:pos)
-    let l:url = matchstr(l:line, s:URL_REGEX, l:pos)
+    let l:pos = match(l:line, l:url_regex, l:pos)
+    let l:url = matchstr(l:line, l:url_regex, l:pos)
     if l:pos < 0 || l:cursor < l:pos
       break
     endif
@@ -92,6 +113,7 @@ function! s:OpenUrlOnCursor()
 endf
 
 noremap <silent> <Plug>(openurl) <ESC>:call <SID>OpenUrlOnCursor()<CR>
+
 silent! nmap <C-Return> <Plug>(openurl)
 if has('mouse')
   silent! map <2-LeftMouse> <Plug>(openurl)
