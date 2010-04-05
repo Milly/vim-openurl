@@ -2,11 +2,12 @@
 
 " Vim plugin file - openurl
 "
-" Last Change:   19 February 2010
+" Last Change:   5 April 2010
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
 "   g:openurl_regex        - URL match regex (default empty)
+"   g:openurl_dos_path     - Enable DOS path (default: 1)
 "   g:openurl_encoding     - Character encoding for URL (default: utf-8)
 "   g:no_openurl_highlight - Not define highlight (default: 0)
 "=============================================================================
@@ -20,8 +21,13 @@ if has('multi_byte')
 else
   let s:URL_REGEX = '\<[a-z+-]\+\>://[-!#%&+,./:;=?$@_~[:alnum:]]\+'
 endif
+
 if !exists('g:openurl_regex')
   let g:openurl_regex = ''
+endif
+
+if !exists('g:openurl_dos_path')
+  let g:openurl_dos_path = 1
 endif
 
 if !exists('g:openurl_encoding')
@@ -39,9 +45,14 @@ endif
 " Get url regex  "{{{1
 function! s:GetUrlRegex()
   if exists('g:openurl_regex') && g:openurl_regex != ''
-    return g:openurl_regex
+    let l:regex = g:openurl_regex
+  else
+    let l:regex = s:URL_REGEX
   endif
-  return s:URL_REGEX
+  if exists('g:openurl_dos_path') && g:openurl_dos_path
+    let l:regex = l:regex . '\|\(^\|\s\@<=\)\([a-z]:\|\\\)\\\(.*\\\)\@=[^[:space:]]\+'
+  endif
+  return l:regex
 endf
 
 
@@ -73,9 +84,9 @@ function! s:OpenUrl(url)
     let l:url = iconv(l:url, &encoding, g:openurl_encoding)
   endif
   if has('win32') && executable('wscript')
+    let l:url = substitute(l:url, '[%^]', '^&', 'g')
     let l:url = substitute(l:url, '\\', '/', 'g')
-    let l:url = substitute(l:url, '^smb://\(//\)\?', '\\\\', '')
-    echo 'openurl: ' . l:url
+    let l:url = substitute(l:url, '^\(smb:\)\?//\(//\)\?', '\\\\', '')
     silent! exec '!start wscript //E:JScript "' . s:wsh_script . '" "' . l:url . '"'
   elseif has('win32unix') && executable('cygstart')
     let l:url = substitute(l:url, '^file://\(localhost/\@=\)\?', '', '')
