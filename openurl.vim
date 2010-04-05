@@ -100,7 +100,33 @@ function! s:OpenUrl(url)
   endif
 endf
 
-command! -nargs=1 -complete=file Open call <SID>OpenUrl('<args>')
+function! s:ListUrl(ArgLead, CmdLine, CursorPos)
+  let l:regdir = '.*/'
+  if has('win32') || has('win32unix')
+    let l:regdir = '.*/\|[A-Za-z]:'
+  endif
+  let l:m = matchlist(a:ArgLead, '^\(file://\)\?\(' . l:regdir . '\)\?\([^/]*\)$')
+  if !empty(l:m) && !empty(l:m[0])
+    if !empty(l:m[1])
+      if !empty(l:m[2])
+        return substitute(globpath(l:m[2], l:m[3] . '*'), '^\|\n', '&file://', 'g')
+      endif
+      return "file://./\nfile://../\nfile:///"
+    else
+      if empty(l:m[2])
+        let l:res = substitute(globpath('.', l:m[3] . '*'), '\(^\|\n\)\./', '\1', 'g')
+      else
+        let l:res = globpath(l:m[2], l:m[3] . '*')
+      endif
+      if !empty(l:res)
+        return l:res
+      end
+    endif
+  endif
+  return "file://\nftp://\nhttp://\nhttps://\nsmb://"
+endf
+
+command! -nargs=1 -complete=custom,<SID>ListUrl Open call <SID>OpenUrl('<args>')
 
 
 " Cursor mapping  "{{{1
