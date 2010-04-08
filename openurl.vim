@@ -155,14 +155,18 @@ function! s:OpenUrlOnCursor()
   let l:url = s:GetCursorUrl()
   if 0 < len(l:url)
     call s:OpenUrl(l:url)
+    return 1
   endif
 endf
 
-noremap <silent> <Plug>(openurl) <ESC>:call <SID>OpenUrlOnCursor()<CR>
+nnoremap <silent> <Plug>(openurl) :call <SID>OpenUrlOnCursor()<CR>
+nnoremap <silent> <Plug>(openurl_or_tag) :<C-U>if !<SID>OpenUrlOnCursor()<CR>exec v:count.'tag '.expand('<cword>')<CR>endif<CR>
 
 silent! nmap <C-Return> <Plug>(openurl)
+silent! nmap <C-]> <Plug>(openurl_or_tag)
 if has('mouse')
   silent! map <2-LeftMouse> <Plug>(openurl)
+  silent! map <C-LeftMouse> <Plug>(openurl_or_tag)
 endif
 
 
