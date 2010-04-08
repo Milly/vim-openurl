@@ -11,6 +11,8 @@
 "   g:openurl_encoding     - Character encoding for URL (default: utf-8)
 "   g:no_openurl_highlight - Not define highlight (default: 0)
 "=============================================================================
+" NOTE: Cannot include WScript's comment-end in this script. (replace to '*'.'/')
+
 " Define  "{{{1
 if exists('g:loaded_openurl')
   finish
@@ -101,9 +103,9 @@ function! s:OpenUrl(url)
 endf
 
 function! s:ListUrl(ArgLead, CmdLine, CursorPos)
-  let l:regdir = '.*/'
+  let l:regdir = '.*'.'/'
   if has('win32') || has('win32unix')
-    let l:regdir = '.*/\|[A-Za-z]:'
+    let l:regdir = '.*'.'/\|[A-Za-z]:'
   endif
   let l:m = matchlist(a:ArgLead, '^\(file://\)\?\(' . l:regdir . '\)\?\([^/]*\)$')
   if !empty(l:m) && !empty(l:m[0])
