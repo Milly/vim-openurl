@@ -132,23 +132,30 @@ command! -nargs=1 -complete=custom,<SID>ListUrl Open call <SID>OpenUrl('<args>')
 
 
 " Cursor mapping  "{{{1
-function! s:OpenUrlOnCursor()
-  let l:cursor = col('.') - 1
+function! s:GetCursorUrl()
+  let l:cursor = col('.')
   let l:line = getline('.')
   let l:pos = 0
   let l:url_regex = s:GetUrlRegex()
   while 1
     let l:pos = match(l:line, l:url_regex, l:pos)
     let l:url = matchstr(l:line, l:url_regex, l:pos)
-    if l:pos < 0 || l:cursor < l:pos
-      break
+    if l:pos < 0 || l:cursor <= l:pos
+      return ''
     endif
     let l:pos = l:pos + strlen(l:url)
-    if l:cursor < l:pos
-      call s:OpenUrl(l:url)
-      break
+    if l:cursor <= l:pos
+      return l:url
     endif
   endw
+endf
+
+function! s:OpenUrlOnCursor()
+  let l:tagjump = 0 < a:0 && a:1
+  let l:url = s:GetCursorUrl()
+  if 0 < len(l:url)
+    call s:OpenUrl(l:url)
+  endif
 endf
 
 noremap <silent> <Plug>(openurl) <ESC>:call <SID>OpenUrlOnCursor()<CR>
