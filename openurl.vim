@@ -2,7 +2,7 @@
 
 " Vim plugin file - openurl
 "
-" Last Change:   5 April 2010
+" Last Change:   9 April 2010
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
@@ -86,19 +86,26 @@ function! s:OpenUrl(url)
     let l:url = iconv(l:url, &encoding, g:openurl_encoding)
   endif
   if has('win32') && executable('wscript')
-    let l:url = substitute(l:url, '[%^]', '^&', 'g')
+    let l:url = substitute(l:url, '[^]', '^&', 'g')
     let l:url = substitute(l:url, '\\', '/', 'g')
     let l:url = substitute(l:url, '^\(smb:\)\?//\(//\)\?', '\\\\', '')
+    let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec '!start wscript //E:JScript "' . s:wsh_script . '" "' . l:url . '"'
   elseif has('win32unix') && executable('cygstart')
     let l:url = substitute(l:url, '^file://\(localhost/\@=\)\?', '', '')
+    let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec "!cygstart '" . l:url . "'"
   elseif has('mac') && executable('open')
+    let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec "!open '" . l:url . "'"
   elseif has('unix') && executable('gnome-open')
+    let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec "!gnome-open '" . l:url . "'"
   elseif has('unix') && executable('xdg-open')
+    let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec "!xdg-open '" . l:url . "'"
+  else
+    echom 'openurl: Command not found to open url.'
   endif
 endf
 
