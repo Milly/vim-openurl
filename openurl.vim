@@ -44,6 +44,11 @@ if !exists('g:no_openurl_highlight')
   let g:no_openurl_highlight = 0
 endif
 
+let s:SEARCH_URL = 'http://www.google.com/search?q={query}&ie={encoding}'
+if !exists('g:openurl_search_url')
+  let g:openurl_search_url = s:SEARCH_URL
+endif
+
 
 " Get url regex  "{{{1
 function! s:GetUrlRegex()
@@ -136,6 +141,41 @@ function! s:ListUrl(ArgLead, CmdLine, CursorPos)
 endf
 
 command! -nargs=1 -complete=custom,<SID>ListUrl Open call <SID>OpenUrl('<args>')
+
+
+" Search command  "{{{1
+function! s:Search(query)
+  let l:url = s:SEARCH_URL
+  let l:query = a:query
+  let l:encoding = &encoding
+  if exists('g:openurl_search_url') && 0 < len(g:openurl_search_url)
+    let l:url = g:openurl_search_url
+  endif
+  if has('iconv') && exists('g:openurl_encoding') && 0 < strlen(g:openurl_encoding)
+    let l:encoding = g:openurl_encoding
+    let l:query = iconv(l:query, &encoding, g:openurl_encoding)
+  endif
+  let l:query = s:UrlEncode(l:query)
+  let l:url = substitute(l:url, '{query}', l:query, 'g')
+  let l:url = substitute(l:url, '{encoding}', l:encoding, 'g')
+  call s:OpenUrl(l:url)
+endf
+
+function! s:UrlEncode(str)
+  let l:res = []
+  let l:idx = len(a:str)
+  while 0 < l:idx
+    let l:idx = l:idx - 1
+    let l:c = a:str[l:idx]
+    if 0 <= match(l:c, "[^0-9a-zA-Z!'()*._~-]")
+      let l:c = printf('%%%02X', char2nr(l:c))
+    endif
+    call add(l:res, l:c)
+  endw
+  return join(reverse(l:res), '')
+endf
+
+command! -nargs=1 -complete=tag Search call <SID>Search('<args>')
 
 
 " Cursor mapping  "{{{1
