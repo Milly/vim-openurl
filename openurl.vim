@@ -2,7 +2,7 @@
 
 " Vim plugin file - openurl
 "
-" Last Change:   9 April 2010
+" Last Change:   5 October 2010
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
@@ -19,10 +19,11 @@ if exists('g:loaded_openurl')
 endif
 
 if has('multi_byte')
-  let s:URL_REGEX = '\<[a-z+-]\+\>://\([-!#%&+,./:;=?$@_~[:alnum:]]\|[^[:print:][:cntrl:]]\)\+'
+  let s:URL_PATH_REGEX = '\([-!#%&+,./:;=?$@_~[:alnum:]]\|[^[:print:][:cntrl:]（）［］｛｝＜＞「」【】『』≪≫〈〉《》〔〕]\)\+'
 else
-  let s:URL_REGEX = '\<[a-z+-]\+\>://[-!#%&+,./:;=?$@_~[:alnum:]]\+'
+  let s:URL_PATH_REGEX = '[-!#%&+,./:;=?$@_~[:alnum:]]\+'
 endif
+let s:URL_REGEX = '\<[a-z+-]\+\>://\('.s:URL_PATH_REGEX.'\|('.s:URL_PATH_REGEX.')\)\+'
 
 if !exists('g:openurl_regex')
   let g:openurl_regex = ''
@@ -86,7 +87,6 @@ function! s:OpenUrl(url)
     let l:url = iconv(l:url, &encoding, g:openurl_encoding)
   endif
   if has('win32') && executable('wscript')
-    let l:url = substitute(l:url, '[^]', '^&', 'g')
     let l:url = substitute(l:url, '\\', '/', 'g')
     let l:url = substitute(l:url, '^\(smb:\)\?//\(//\)\?', '\\\\', '')
     let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
