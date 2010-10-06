@@ -1,4 +1,4 @@
-"*** DON'T REMOVE THIS LINE ***"; new ActiveXObject("WScript.Shell").Run('"'+WScript.Arguments.Item(0)+'"'); /*
+"*** DON'T REMOVE THIS LINE ***";s=new ActiveXObject("WScript.Shell");e=s.Environment("PROCESS");e.Item('P')='%';s.Run('"'+WScript.Arguments.Item(0).replace(/%/g,'%P%')+'"'); /*
 
 " Vim plugin file - openurl
 "
@@ -92,8 +92,7 @@ function! s:OpenUrl(url)
     let l:url = iconv(l:url, &encoding, g:openurl_encoding)
   endif
   if has('win32') && executable('wscript')
-    let l:url = substitute(l:url, '\\', '/', 'g')
-    let l:url = substitute(l:url, '^\(smb:\)\?//\(//\)\?', '\\', '')
+    let l:url = substitute(l:url, '^\(smb:\)\?[/\\]\{2,4}', '\\\\', 'i')
     let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec '!start wscript //E:JScript "' . s:wsh_script . '" "' . l:url . '"'
   elseif has('win32unix') && executable('cygstart')
