@@ -96,7 +96,8 @@ function! s:OpenUrl(url)
     let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec '!start wscript //E:JScript "' . s:wsh_script . '" "' . l:url . '"'
   elseif has('win32unix') && executable('cygstart')
-    let l:url = substitute(l:url, '^file://\(localhost/\@=\)\?', '', '')
+    let l:url = substitute(l:url, '^file://\(localhost/\@=\)\?', '', 'i')
+    let l:url = substitute(l:url, '^/\([a-z]\):\(/\@=\|$\)', '/cygdrive/\l\1', 'i')
     let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
     silent! exec "!cygstart '" . l:url . "'"
   elseif has('mac') && executable('open')
