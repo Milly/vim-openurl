@@ -102,7 +102,7 @@ function! s:OpenUrl(url)
   endif
   if has('win32') && executable('wscript')
     let l:url = substitute(l:url, '^\(smb:\)\?[/\\]\{2,4}', '\\\\', 'i')
-    let l:url = substitute(l:url, '[\\!%]', '\\&', 'g')
+    let l:url = substitute(l:url, '[!%]', '\\&', 'g')
     silent! exec '!start wscript //E:JScript "' . s:wsh_script . '" "' . l:url . '"'
   elseif has('win32unix') && executable('cygstart')
     let l:url = substitute(l:url, '^file://\(localhost/\@=\)\?', '', 'i')
