@@ -42,11 +42,16 @@ if !exists('g:openurl_dos_path')
   let g:openurl_dos_path = 1
 endif
 
+if !exists('g:openurl_encoding') && has('unix')
+  let s:charset = matchstr(v:lang, '\.\zs.\+$')
+  if s:charset | let g:openurl_encoding = s:charset | endif
+endif
+if !exists('g:openurl_encoding') && (has('win32') || has('win32unix')) && executable('chcp')
+  let s:codepage = matchstr(system('chcp'), ' \zs\d\+\ze\(\n\|$\)')
+  if s:codepage | let g:openurl_encoding = 'cp'.s:codepage | endif
+endif
 if !exists('g:openurl_encoding')
   let g:openurl_encoding = 'utf-8'
-  if (has('win32') || has('win32unix')) && 0 <= match($LANG, '^ja', 'i')
-    let g:openurl_encoding = 'cp932'
-  endif
 endif
 
 if !exists('g:no_openurl_highlight')
