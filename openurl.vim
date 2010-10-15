@@ -2,7 +2,7 @@
 
 " Vim plugin file - openurl
 "
-" Last Change:   5 October 2010
+" Last Change:   15 October 2010
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
@@ -19,11 +19,20 @@ if exists('g:loaded_openurl')
 endif
 
 if has('multi_byte')
-  let s:URL_PATH_REGEX = '\([-!#%&+,./:;=?$@_~[:alnum:]]\|[^[:print:][:cntrl:]（）［］｛｝＜＞「」【】『』≪≫〈〉《》〔〕]\)\+'
+  let s:URL_CHAR_REGEX = '[-!#%&+,./\\:;=?$@_~[:alnum:]]\|[^[:print:][:cntrl:]]'
+  let s:DOS_CHAR_REGEX = '[-!#%&+,.;=$@_~'."'".'`[:alnum:]]\|[^[:print:][:cntrl:]]\| '
+  let s:LPAREN_REGEX = '[({\[（［｛＜「【『≪〈《〔]'
+  let s:RPAREN_REGEX = '[〕》〉≫』】」＞｝］）\]})]'
 else
-  let s:URL_PATH_REGEX = '[-!#%&+,./:;=?$@_~[:alnum:]]\+'
+  let s:URL_CHAR_REGEX = '[-!#%&+,./\\:;=?$@_~[:alnum:]]'
+  let s:DOS_CHAR_REGEX = '[-!#%&+,.;=$@_~'."'".'`[:alnum:] ]'
+  let s:LPAREN_REGEX = '[({\[]'
+  let s:RPAREN_REGEX = '[\]})]'
 endif
-let s:URL_REGEX = '\<[a-z+-]\+\>://\('.s:URL_PATH_REGEX.'\|('.s:URL_PATH_REGEX.')\)\+'
+let s:URL_PATH_REGEX = '\('.s:URL_CHAR_REGEX.'\|'.s:LPAREN_REGEX.'\('.s:URL_CHAR_REGEX.'\)*'.s:RPAREN_REGEX.'\)\+'
+let s:URL_REGEX = '\<\<[a-z+-]\+\>://'.s:URL_PATH_REGEX
+let s:DOS_PATH_REGEX = '\('.s:DOS_CHAR_REGEX.'\|'.s:LPAREN_REGEX.'\('.s:DOS_CHAR_REGEX.'\)*'.s:RPAREN_REGEX.'\)\+'
+let s:DOS_PATH_REGEX = '\(^\|\s\@<=\|'.s:LPAREN_REGEX.'\@<=\|\<file:///\)\(\([a-z]:\|\\\)\([/\\\\]'.s:DOS_PATH_REGEX.'\)\+[/\\\\]\?\|[a-z]:\\\)'
 
 if !exists('g:openurl_regex')
   let g:openurl_regex = ''
@@ -58,7 +67,7 @@ function! s:GetUrlRegex()
     let l:regex = s:URL_REGEX
   endif
   if exists('g:openurl_dos_path') && g:openurl_dos_path
-    let l:regex = l:regex . '\|\(^\|\s\@<=\)\([a-z]:\|\\\)\\\(.*\\\)\@=[^[:space:]]\+'
+    let l:regex = s:DOS_PATH_REGEX.'\|'.l:regex
   endif
   return l:regex
 endf
