@@ -2,12 +2,12 @@
 
 " Vim plugin file - openurl
 "
-" Last Change:   15 October 2010
+" Last Change:   8 May 2012
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
 "   g:openurl_regex        - URL match regex (default empty)
-"   g:openurl_dos_path     - Enable DOS path (default: 1)
+"   g:openurl_dos_path     - Enable DOS path (default: 0)
 "   g:openurl_encoding     - Character encoding for URL (default: utf-8)
 "   g:no_openurl_highlight - Not define highlight (default: 0)
 "=============================================================================
@@ -39,7 +39,7 @@ if !exists('g:openurl_regex')
 endif
 
 if !exists('g:openurl_dos_path')
-  let g:openurl_dos_path = 1
+  let g:openurl_dos_path = 0
 endif
 
 if !exists('g:openurl_encoding') && has('unix')
