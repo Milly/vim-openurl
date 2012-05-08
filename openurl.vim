@@ -31,7 +31,7 @@ else
   let s:RPAREN_REGEX = '[\]})]'
 endif
 let s:URL_PATH_REGEX = '\('.s:URL_CHAR_REGEX.'\|'.s:LPAREN_REGEX.'\('.s:URL_CHAR_REGEX.'\)*'.s:RPAREN_REGEX.'\)\+'
-let s:URL_REGEX = '\<\<[a-z+-]\+\>://'.s:URL_PATH_REGEX
+let s:URL_REGEX = '\<\([a-z+-]\+\>://\|mailto:\|news:\|xmpp:\)'.s:URL_PATH_REGEX
 let s:DOS_PATH_REGEX = '\('.s:DOS_CHAR_REGEX.'\|'.s:LPAREN_REGEX.'\('.s:DOS_CHAR_REGEX.'\)*'.s:RPAREN_REGEX.'\)\+'
 let s:DOS_PATH_REGEX = '\(^\|\s\@<=\|'.s:LPAREN_REGEX.'\@<=\|\<file:///\)\(\([a-z]:\|\\\)\([/\\\\]'.s:DOS_PATH_REGEX.'\)\+[/\\\\]\?\|[a-z]:\\\)'
 
