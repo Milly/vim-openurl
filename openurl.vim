@@ -17,6 +17,7 @@
 if exists('g:loaded_openurl')
   finish
 endif
+scriptencoding utf-8
 
 if has('multi_byte')
   let s:URL_CHAR_REGEX = '[-!#%&+,./\\:;=?$@_~[:alnum:]]\|[^[:print:][:cntrl:]]'
