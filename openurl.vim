@@ -1,4 +1,9 @@
-"*** DON'T REMOVE THIS LINE ***";s=new ActiveXObject("WScript.Shell");e=s.Environment("PROCESS");e.Item('P')='%';s.Run('"'+WScript.Arguments.Item(0).replace(/%/g,'%P%')+'"'); /*
+"*** DON'T REMOVE THIS LINE ***";
+"";shell = new ActiveXObject("WScript.Shell");
+"";shell.Environment("PROCESS").Item('P') = '%';
+"";path = WScript.Arguments.Item(0).replace(/%/g,'%P%');
+"";shell.Run('RunDLL32.EXE Shell32.DLL,ShellExec_RunDLL "' + path + '"'); /*
+"*** DON'T REMOVE THIS LINE ***";
 
 " Vim plugin file - openurl
 "
