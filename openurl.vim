@@ -1,13 +1,17 @@
 " Vim plugin file - openurl
 "
-" Last Change:   12 Mar 2013
+" Last Change:   13 Mar 2013
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
-"   g:openurl_regex        - URL match regex (default empty)
+"   g:openurl_regex        - URL match regex (default: empty)
 "   g:openurl_dos_path     - Enable DOS path (default: 0)
-"   g:openurl_encoding     - Character encoding for URL (default: utf-8)
-"   g:no_openurl_highlight - Not define highlight (default: 0)
+"   g:openurl_encoding     - Character encoding for URL (default: auto detect)
+"   g:openurl_highlight    - Highlight URL (default: 1)
+"   g:openurl_search_url   - Search engine url (default: google)
+"     (ex.) let g:openurl_search_url = 'http://www.google.com/search?q={query}&ie={encoding}'
+"   g:openurl_commands     - Additional commands (default: empty)
+"     (ex.) let g:openurl_commands = [ {'command': 'myopen', 'cmdline': '{command} -opt {url}'} ]
 "=============================================================================
 
 " Define  "{{{1
@@ -70,8 +74,8 @@ if !exists('g:openurl_encoding')
   let g:openurl_encoding = 'utf-8'
 endif
 
-if !exists('g:no_openurl_highlight')
-  let g:no_openurl_highlight = 0
+if !exists('g:openurl_highlight')
+  let g:openurl_highlight = 1
 endif
 
 let s:SEARCH_URL = 'http://www.google.com/search?q={query}&ie={encoding}'
@@ -99,7 +103,7 @@ endf
 
 
 " Syntax  "{{{1
-if has('syntax') && !g:no_openurl_highlight
+if has('syntax') && g:openurl_highlight
 
   function! s:HighlightUrl()
     if &buftype == ''
