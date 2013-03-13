@@ -161,7 +161,7 @@ endf
 function! s:WindowsUrlFilter(url)
   let url = a:url
   let url = substitute(url, '^\(smb:\)\?[/\\]\{2,4}', '\\\\', 'i')
-  if 0 == match(url, s:DOS_PATH_REGEX)
+  if glob(url, 1) != '' " file path
     let url = substitute(url, '/', '\\', 'g')
     let url = s:call_noshellslash('fnamemodify', [url, ':p'])
   elseif 0 == match(url, s:MAIL_REGEX)
@@ -223,32 +223,40 @@ function! s:OpenUrl(url)
 endf
 
 function! s:ListUrl(ArgLead, CmdLine, CursorPos)
-  let l:regdir = '.*'.'/'
+  let regdir = '.*/'
   if s:is_windows || s:is_cygwin
-    let l:regdir = '.*'.'/\|[A-Za-z]:'
+    let regdir = '.*/\|[A-Za-z]:'
   endif
-  let l:m = matchlist(a:ArgLead, '^\(file://\)\?\(' . l:regdir . '\)\?\([^/]*\)$')
-  if !empty(l:m) && !empty(l:m[0])
-    if !empty(l:m[1])
-      if !empty(l:m[2])
-        return substitute(globpath(l:m[2], l:m[3] . '*'), '^\|\n', '&file://', 'g')
-      endif
-      return "file://./\nfile://../\nfile:///"
-    else
-      if empty(l:m[2])
-        let l:res = substitute(globpath('.', l:m[3] . '*'), '\(^\|\n\)\./', '\1', 'g')
+  let m = matchlist(a:ArgLead, '^\(file:///\)\?\(' . regdir . '\)\?\([^/]*\)$')
+  if !empty(get(m, 0))
+    if !empty(m[1])  " file schema
+      if s:is_windows && empty(m[2])
+        let path = 'A:,B:,C:,D:,E:,F:,G:,H:,I:,J:,K:,L:,M:,N:,O:,P:,Q:,R:,S:,T:,U:,V:,W:,X:,Y:,Z:'
+        let search = ''
+      elseif m[2] =~? '^[a-z]:$'
+        return [ m[2] . '/' ]
       else
-        let l:res = globpath(l:m[2], l:m[3] . '*')
+        let path = empty(m[2]) ? '/' : m[2]
+        let search = m[3] . '*'
       endif
-      if !empty(l:res)
-        return l:res
+      let schema = (path =~? '^[a-z]:') ? 'file:///' : 'file://'
+      return map(split(globpath(path, search), "\n"), 'schema.v:val')
+    else             " no schema
+      if empty(m[2]) " no directory
+        let res = map(split(globpath('.', m[3] . '*'), "\n"), 'v:val[2:]')
+      else           " directory
+        let res = split(globpath(m[2], m[3] . '*'), "\n")
+      endif
+      if !empty(res)
+        return res
       end
     endif
   endif
-  return "file://\nftp://\nhttp://\nhttps://\nsmb://"
+  let res = [ 'file:///', 'ftp://', 'http://', 'https://', 'smb://' ]
+  return filter(res, 'stridx(v:val, a:ArgLead) == 0')
 endf
 
-command! -nargs=1 -complete=custom,<SID>ListUrl Open call <SID>OpenUrl('<args>')
+command! -nargs=1 -complete=customlist,<SID>ListUrl Open call <SID>OpenUrl('<args>')
 
 
 " Search command  "{{{1
