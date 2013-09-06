@@ -1,6 +1,6 @@
 " Vim plugin file - openurl
 "
-" Last Change:   13 Mar 2013
+" Last Change:   06 Sep 2013
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
@@ -299,16 +299,17 @@ function! s:GetCursorUrl()
   endw
 endf
 
-function! s:OpenUrlOnCursor()
+function! s:OpenUrlOnCursor(...)
   let l:url = s:GetCursorUrl()
   if 0 < len(l:url)
     call s:OpenUrl(l:url)
-    return 1
+  elseif 0 < a:0 && a:1
+    call feedkeys("\<C-]>", 'n')
   endif
 endf
 
 nnoremap <silent> <Plug>(openurl) :call <SID>OpenUrlOnCursor()<CR>
-nnoremap <silent> <Plug>(openurl_or_tag) :<C-U>if !<SID>OpenUrlOnCursor()<CR>exec v:count.'tag '.expand('<cword>')<CR>endif<CR>
+nnoremap <silent> <Plug>(openurl_or_tag) :call <SID>OpenUrlOnCursor(1)<CR>
 
 silent! nmap <C-Return> <Plug>(openurl)
 silent! nmap <C-]> <Plug>(openurl_or_tag)
