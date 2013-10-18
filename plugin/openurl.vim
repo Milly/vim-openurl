@@ -1,6 +1,6 @@
 " Vim plugin file - openurl
 "
-" Last Change:   06 Sep 2013
+" Last Change:   19 Oct 2013
 " Maintainer:    Milly
 " Purpose:       Open url or file with default viewer.
 " Options:
@@ -30,8 +30,8 @@ let s:is_unix = has('unix')
 if has('multi_byte')
   let s:URL_CHAR_REGEX = '[-!#%&+,./\\:;=?$@_~[:alnum:]]\|[^[:print:][:cntrl:]]'
   let s:DOS_CHAR_REGEX = '[-!#%&+,.;=$@_~'."'".'`[:alnum:]]\|[^[:print:][:cntrl:]]\| '
-  let s:LPAREN_REGEX = '[({\[（［｛＜「【『≪〈《〔]'
-  let s:RPAREN_REGEX = '[〕》〉≫』】」＞｝］）\]})]'
+  let s:LPAREN_REGEX = "[({\[\u226a\u3008\u300a\u300c\u300e\u3010\u3014\uff08\uff1c\uff3b\uff5b]"
+  let s:RPAREN_REGEX = "[)}\]\u266b\u3009\u300b\u300d\u300f\u3011\u3015\uff09\uff1e\uff3d\uff5d]"
 else
   let s:URL_CHAR_REGEX = '[-!#%&+,./\\:;=?$@_~[:alnum:]]'
   let s:DOS_CHAR_REGEX = '[-!#%&+,.;=$@_~'."'".'`[:alnum:] ]'
