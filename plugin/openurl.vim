@@ -87,6 +87,10 @@ if !exists('g:openurl_commands')
   let g:openurl_commands = []
 endif
 
+if !exists('g:openurl_fix_regexpengine')
+  let g:openurl_fix_regexpengine = exists('+regexpengine')
+endif
+
 
 " Get url regex  "{{{1
 function! s:GetUrlRegex()
@@ -97,6 +101,9 @@ function! s:GetUrlRegex()
   endif
   if exists('g:openurl_dos_path') && g:openurl_dos_path
     let l:regex = s:DOS_PATH_REGEX.'\|'.l:regex
+  endif
+  if exists('g:openurl_fix_regexpengine') && g:openurl_fix_regexpengine
+    let l:regex = '\%#=1'.l:regex
   endif
   return l:regex
 endf
